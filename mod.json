@@ -40,5 +40,11 @@
 			"default": "Encoded",
 			"one-of": ["Encoded", "Decoded"]
 		}
-	}
+	},
+	"links": {
+		"community": "https://discord.gg/vK3DuqJwyW",
+		"homepage": "https://omgrod.me",
+		"source": "https://github.com/OmgRod/RodsFangameTools"
+	},
+	"tags": ["customization", "developer", "editor", "interface", "offline", "universal", "utility"]
 }

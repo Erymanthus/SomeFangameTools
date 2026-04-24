@@ -22,6 +22,14 @@ This mod adds some cool <cg>utilities</c> for anyone who wishes to make <cy>Geom
 
 <mod:hiimjustin000.more_icons>
 
+**Stats Display API**: This mod (co-developed by yours truly) is an API that lets you add custom stats to the icon kit area. This may be useful if your fangame will include custom stats.
+
+<mod:capeling.garage-stats-menu>
+
+**GDShare**: This mod allows you to share levels with others. This mod can also fix a known bug (by RobTop) where secret coins get automatically deleted from the level each time it's reopened.
+
+<mod:hjfod.gdshare>
+
 ## Incompatibilities
 
 - Eclipse: Read-only level preview code may overlap a bit, but it seems to work fine.

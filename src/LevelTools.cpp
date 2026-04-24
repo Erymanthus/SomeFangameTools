@@ -98,23 +98,38 @@ class $modify(MyLevelPage, LevelPage) {
 
 class $modify(MyEditorPauseLayer, EditorPauseLayer) {
     struct Fields {
-        FLAlertLayer* m_popup;
+        MDPopup* m_popup;
     };
 
     bool init(LevelEditorLayer* layer) {
         if (!EditorPauseLayer::init(layer)) return false;
 
         auto menu = this->getChildByID("guidelines-menu");
+        bool copy = Mod::get()->getSettingValue<bool>("copy-level-string");
+        bool paste = Mod::get()->getSettingValue<bool>("paste-level-string");
 
-        CCSprite* buttonSprite = CircleButtonSprite::create(CCLabelBMFont::create("Paste\nLevel", "bigFont.fnt", 0.f, CCTextAlignment::kCCTextAlignmentCenter));
-        CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(
-            buttonSprite,
-            this,
-            menu_selector(MyEditorPauseLayer::onPasteLevelString)
-        );
+        if (copy) {
+            CCSprite* buttonSprite = CircleButtonSprite::create(CCLabelBMFont::create("Copy\nLevel", "bigFont.fnt", 0.f, CCTextAlignment::kCCTextAlignmentCenter));
+            CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(
+                buttonSprite,
+                this,
+                menu_selector(MyEditorPauseLayer::onCopyLevelString)
+            );
 
-        menu->addChild(button);
-        menu->updateLayout();
+            menu->addChild(button);
+            menu->updateLayout();
+        }
+        if (paste) {
+            CCSprite* buttonSprite = CircleButtonSprite::create(CCLabelBMFont::create("Paste\nLevel", "bigFont.fnt", 0.f, CCTextAlignment::kCCTextAlignmentCenter));
+            CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(
+                buttonSprite,
+                this,
+                menu_selector(MyEditorPauseLayer::onPasteLevelString)
+            );
+
+            menu->addChild(button);
+            menu->updateLayout();
+        }
 
         return true;
     }
@@ -130,14 +145,18 @@ class $modify(MyEditorPauseLayer, EditorPauseLayer) {
 
         // sry [redacted] ik this is indeed ass but my game keeps crashing with the code above
         std::string levelString = clipboard::read();
+        LevelSettingsObject* obj = LevelSettingsObject::objectFromString(levelString);
         m_editorLayer->m_level->m_levelString = levelString;
-        FLAlertLayer* popup = FLAlertLayer::create(
+        MDPopup* popup = MDPopup::create(
             "Level Pasted",
-            "<cr>PLEASE READ THE INFO BELOW:</c>\n"
-            "The level was pasted <cg>successfully</c>!\n"
-            "Please make sure you <cr>close</c> the editor by clicking "
-            "the \"<cp>Exit</c>\" button (NOT \"<cy>Save and Exit</c>\") "
-            "and then re-open the editor as usual.",
+            "Level pasted <cg>successfully</c>!\n\n"
+            "<cr>Important:</c>\n"
+            "- You must manually set song ID, gamemode, and some metadata\n"
+            "- Secret coins are automatically removed (game limitation)\n\n"
+            "To apply changes:\n\n"
+            "<cr>Exit the editor</c> using \"<cp>Exit</c>\" (NOT \"<cy>Save and Exit</c>\"). "
+            "Then reopen the level.\n\n\n(if you send me a bug report saying the mod is broken "
+            "WITHOUT reading the info above, i'm ignoring it).",
             "OK"
         );
         m_fields->m_popup = popup;
@@ -147,6 +166,25 @@ class $modify(MyEditorPauseLayer, EditorPauseLayer) {
         actions->addObject(CCDelayTime::create(2.f));
         actions->addObject(CCCallFunc::create(this, callfunc_selector(MyEditorPauseLayer::showPopupButton)));
         popup->runAction(CCSequence::create(actions));
+    }
+
+    void onCopyLevelString(CCObject* sender) {
+        std::string levelCopyType = Mod::get()->getSettingValue<std::string>("level-copy-type");
+        std::string levelString = m_editorLayer->m_level->m_levelString;
+
+        if (levelCopyType == "Encoded") {
+            clipboard::write(levelString);
+            Notification* n = Notification::create("Encoded level copied successfully!", NotificationIcon::Success);
+            n->show();
+        } else if (levelCopyType == "Decoded") {
+            std::string decrypted = ZipUtils::decompressString(levelString, false, 1);
+            clipboard::write(decrypted);
+            Notification* n = Notification::create("Decoded level copied successfully!", NotificationIcon::Success);
+            n->show();
+        } else {
+            Notification* n = Notification::create("Unknown level type", NotificationIcon::Error);
+            n->show();
+        }
     }
 
     void showPopupButton() {
