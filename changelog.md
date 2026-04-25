@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.5
+
+- No changes
+- Erymanthus is wasting my time
+
 ## v1.0.4
 
 - Fixed crash caused by opening the level select screen with the "Copy Main Levels" setting off
