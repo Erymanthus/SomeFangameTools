@@ -261,6 +261,10 @@ class $modify(MyLevelAreaInnerLayer, LevelAreaInnerLayer) {
         GameLevelManager* glm = GameLevelManager::sharedState();
         GameManager* gm = GameManager::sharedState();
         LocalLevelManager* llm = LocalLevelManager::sharedState();
+        CCDirector* ccd = CCDirector::sharedDirector();
+
+        if (ccd->getIsTransitioning()) return;
+        this->setKeypadEnabled(false);
 
         // log::debug("Level string for \"{}\": {}", m_level->m_levelName, m_level->m_levelString);
         auto levelID = static_cast<CCInteger*>(static_cast<CCNode*>(sender)->getUserObject("level-id-to-copy"_spr))->getValue();
